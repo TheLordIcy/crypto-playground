@@ -35,7 +35,7 @@ void bn_free(Bignum *b);
 void bn_zero(Bignum *b);
 
 /* Capacity */
-int bn_reserve(Bignum *b, size_t_min_cap);
+int bn_reserve(Bignum *b, size_t min_cap);
 
 /* Assignment */
 int bn_copy(Bignum *dst, const Bignum *src);
