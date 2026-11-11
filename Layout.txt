@@ -1,0 +1,6 @@
+core/        bignum.{h,c} modmath.{h,c} primes.{h,c} rsa.{h,c}
+             dh.{h,c} sha256.{h,c} ecc.{h,c}
+wasm/        bindings.c          # sole Emscripten-aware file
+test/        run_tests.c  bench.c  vectors/
+web/         index.html  style.css  app.js
+Makefile     .gitignore

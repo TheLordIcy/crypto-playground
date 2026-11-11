@@ -1,0 +1,7 @@
+*.o
+libcrypto.a
+test/run_tests
+test/run_tests_asan
+test/bench
+web/crypto.js
+web/crypto.wasm

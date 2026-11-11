@@ -1,0 +1,5 @@
+body { font-family: system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+.warn { color: #b00; font-weight: bold; }
+nav button { margin-right: 0.5rem; }
+#demo { margin-top: 1rem; border: 1px solid #ccc; padding: 1rem; min-height: 200px; }
+pre { white-space: pre-wrap; word-break: break-all; }
