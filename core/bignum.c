@@ -135,6 +135,36 @@ int bn_set_uint(Bignum *b, uint64_t v)
     return BN_OK;
 }
 
+/* --------------------------------------------------------------- comparison */
+
+/*
+ * Which is bigger? Returns <0, 0, or >0 like strcmp, so callers can write
+ *   if (bn_cmp(x, y) < 0) ...
+ *
+ * Two levels of shortcut, cheapest first:
+ *   1. A normalized number with more limbs is always bigger. (If that extra
+ *      top limb were zero, normalization would have removed it.)
+ *   2. Same length: the first limb that differs, scanning from the TOP down,
+ *      decides -- just like comparing "123" with "129" digit by digit from
+ *      the left. Scanning from the bottom would be wrong.
+ */
+int bn_cmp(const Bignum *a, const Bignum *b)
+{
+    size_t i;
+
+    if (a->len != b->len)
+        return (a->len < b->len) ? -1 : 1;
+
+    i = a->len;
+    while (i > 0) {
+        i--;
+        if (a->limbs[i] != b->limbs[i])
+            return (a->limbs[i] < b->limbs[i]) ? -1 : 1;
+    }
+
+    return 0;                       /* every limb matched */
+}
+
 /* ------------------------------------------------- normalisation and queries */
 
 void bn_normalize(Bignum *b)

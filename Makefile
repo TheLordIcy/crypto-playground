@@ -11,7 +11,7 @@ CORE_SRCS := core/bignum.c core/modmath.c core/primes.c core/rsa.c \
 # Native library built from core/ for testing and benchmarking.
 LIB := libcrypto.a
 
-.PHONY: all test bench asan clean wasm
+.PHONY: all test bignum-test bench asan clean wasm
 
 all: $(LIB)
 
@@ -25,9 +25,13 @@ $(LIB): $(CORE_SRCS)
 	$(CC) $(CFLAGS) -c core/ecc.c      -o ecc.o
 	ar rcs $(LIB) bignum.o modmath.o primes.o rsa.o dh.o sha256.o ecc.o
 
-test: $(LIB)
+test: bignum-test $(LIB)
 	$(CC) $(CFLAGS) test/run_tests.c $(LIB) -o test/run_tests $(LDFLAGS)
 	./test/run_tests
+
+bignum-test: $(LIB)
+	$(CC) $(CFLAGS) -Icore test/bignum_tests.c $(LIB) -o test/bignum_tests $(LDFLAGS)
+	./test/bignum_tests
 
 bench: $(LIB)
 	$(CC) $(CFLAGS) -O2 test/bench.c $(LIB) -o test/bench $(LDFLAGS)
@@ -44,4 +48,4 @@ wasm:
 	  -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap","getValue","setValue"]'
 
 clean:
-	rm -f *.o $(LIB) test/run_tests test/run_tests_asan test/bench web/crypto.js web/crypto.wasm
+	rm -f *.o $(LIB) test/run_tests test/run_tests_asan test/bignum_tests test/bench web/crypto.js web/crypto.wasm

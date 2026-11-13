@@ -15,6 +15,21 @@ static int failed = 0;
     else { failed++; fprintf(stderr, "FAIL: %s (%s:%d)\n", #cond, __FILE__, __LINE__); } \
 } while (0)
 
+/* Build b from little-endian limbs (lowest limb first), then normalize.
+ * Same idea as hand-writing digits, but each "digit" is 32 bits wide. */
+static int bn_set_limbs(Bignum *b, size_t n, const uint32_t *limbs)
+{
+    size_t i;
+
+    if (bn_reserve(b, n) != BN_OK)
+        return BN_ENOMEM;
+    for (i = 0; i < n; i++)
+        b->limbs[i] = limbs[i];
+    b->len = n;
+    bn_normalize(b);
+    return BN_OK;
+}
+
 /* Phase 1 — bignum lifecycle, assignment and queries. */
 static void test_bignum_basics(void)
 {
@@ -105,6 +120,57 @@ static void test_bignum_basics(void)
     CHECK(a.cap == 0);
 }
 
+/* Phase 1 — comparison. */
+static void test_bignum_compare(void)
+{
+    Bignum a, b, c;
+    static const uint32_t two64[]   = {0u, 0u, 1u};   /* 2^64     */
+    static const uint32_t two64p1[] = {1u, 0u, 1u};   /* 2^64 + 1 */
+    static const uint32_t two64p5[] = {5u, 0u, 1u};   /* 2^64 + 5 */
+    static const uint32_t two32[]   = {0u, 1u};       /* 2^32     */
+    static const uint32_t max32[]   = {0xFFFFFFFFu};  /* 2^32 - 1 */
+
+    bn_init(&a);
+    bn_init(&b);
+    bn_init(&c);
+
+    /* zero == zero, whatever the shelf size */
+    CHECK(bn_cmp(&a, &b) == 0);
+    CHECK(bn_reserve(&b, 8) == BN_OK);
+    CHECK(bn_cmp(&a, &b) == 0);
+
+    /* zero < one, and swapping the arguments flips the sign */
+    CHECK(bn_set_uint(&a, 1) == BN_OK);
+    CHECK(bn_cmp(&b, &a) < 0);
+    CHECK(bn_cmp(&a, &b) > 0);
+    CHECK(bn_cmp(&a, &a) == 0);
+
+    /* more limbs wins: 2^32-1 < 2^32 < 2^64 */
+    CHECK(bn_set_limbs(&a, 1, max32) == BN_OK);
+    CHECK(bn_set_limbs(&b, 2, two32) == BN_OK);
+    CHECK(bn_set_limbs(&c, 3, two64) == BN_OK);
+    CHECK(bn_cmp(&a, &b) < 0);
+    CHECK(bn_cmp(&b, &c) < 0);
+    CHECK(bn_cmp(&c, &a) > 0);
+    CHECK(bn_cmp(&a, &c) < 0);
+
+    /* equal length and equal top limbs: the scan has to reach limb 0 */
+    CHECK(bn_set_limbs(&a, 3, two64p5) == BN_OK);
+    CHECK(bn_set_limbs(&b, 3, two64p1) == BN_OK);
+    CHECK(bn_cmp(&a, &b) > 0);
+    CHECK(bn_cmp(&b, &a) < 0);
+    CHECK(bn_cmp(&a, &a) == 0);
+
+    /* a zero limb in the middle is just a wide gap */
+    CHECK(bn_set_limbs(&a, 3, two64p1) == BN_OK);
+    CHECK(bn_set_limbs(&b, 2, two32) == BN_OK);
+    CHECK(bn_cmp(&a, &b) > 0);
+
+    bn_free(&c);
+    bn_free(&b);
+    bn_free(&a);
+}
+
 int main(void) {
     /* Phase 0 sanity: a deliberately broken assertion should fail the build/run. */
     CHECK(1 == 1);
@@ -112,6 +178,7 @@ int main(void) {
     /* CHECK(0 == 1); */
 
     test_bignum_basics();
+    test_bignum_compare();
 
     printf("tests: %d passed, %d failed\n", passed, failed);
     return failed ? EXIT_FAILURE : EXIT_SUCCESS;

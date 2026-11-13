@@ -3,7 +3,7 @@
 
 #include "bignum.h"
 
-void dh_keypair(bignum *priv, bignum *pub, const bignum *p, const bignum *g);
-void dh_shared(bignum *s, const bignum *priv, const bignum *peer_pub, const bignum *p);
+void dh_keypair(Bignum *priv, Bignum *pub, const Bignum *p, const Bignum *g);
+void dh_shared(Bignum *s, const Bignum *priv, const Bignum *peer_pub, const Bignum *p);
 
 #endif /* DH_H */

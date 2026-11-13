@@ -3,7 +3,7 @@
 
 #include "bignum.h"
 
-void modpow(bignum *r, const bignum *base, const bignum *exp, const bignum *mod);
-void modinv(bignum *r, const bignum *a, const bignum *mod);
+void modpow(Bignum *r, const Bignum *base, const Bignum *exp, const Bignum *mod);
+void modinv(Bignum *r, const Bignum *a, const Bignum *mod);
 
 #endif /* MODMATH_H */

@@ -5,3 +5,4 @@ test/run_tests_asan
 test/bench
 web/crypto.js
 web/crypto.wasm
+*.exe

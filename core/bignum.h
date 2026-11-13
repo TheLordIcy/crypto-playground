@@ -41,6 +41,11 @@ int bn_reserve(Bignum *b, size_t min_cap);
 int bn_copy(Bignum *dst, const Bignum *src);
 int bn_set_uint(Bignum *b, uint64_t v);
 
+/* Comparison */
+/* Returns <0 if a < b, 0 if a == b, >0 if a > b. Both operands must be
+ * normalized. Cheap-first: differing lengths decide immediately. */
+int bn_cmp(const Bignum *a, const Bignum *b);
+
 /* Normalisation and quaries */
 void bn_normalize(Bignum *b);
 int  bn_is_zero(const Bignum*b);

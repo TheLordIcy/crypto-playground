@@ -20,12 +20,12 @@ void rsa_free(rsa_keypair *kp) {
     free(kp);
 }
 
-void rsa_encrypt(bignum *c, const bignum *m, const rsa_keypair *kp) {
+void rsa_encrypt(Bignum *c, const Bignum *m, const rsa_keypair *kp) {
     (void)c; (void)m; (void)kp;
     /* TODO: Phase 3 */
 }
 
-void rsa_decrypt(bignum *m, const bignum *c, const rsa_keypair *kp) {
+void rsa_decrypt(Bignum *m, const Bignum *c, const rsa_keypair *kp) {
     (void)m; (void)c; (void)kp;
     /* TODO: Phase 3 */
 }
